@@ -15,18 +15,10 @@ public class StorageServiceImpl implements IStorageService {
 	private	IStorageMapper mapper;
 
 	@Override
-	public ServiceResult insertFile(StorageFileVO fileVO) {
-		ServiceResult result = null;
+	public void insertFile(StorageFileVO fileVO) {
 		
-		int status = mapper.insertFile(fileVO);
+		mapper.insertFile(fileVO);
 		
-		if(status > 0) {
-			result = ServiceResult.OK;
-		}else {
-			result = ServiceResult.FAILED;
-		}
-		
-		return result;
 	} 
 	
 	

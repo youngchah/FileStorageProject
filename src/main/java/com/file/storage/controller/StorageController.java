@@ -144,7 +144,7 @@ public class StorageController {
 		}
 		
 		
-		ServiceResult result = storageService.insertFile(fileVO);
+		storageService.insertFile(fileVO);
 		model.addAttribute("fileVO", fileVO)
 ;		
 		
