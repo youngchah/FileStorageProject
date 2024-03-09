@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	 <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+	 	<property name="driverClassName" value="net.sf.log4jdbc.sql.jdbcapi.DriverSpy" />
+	 	<property name="url" value="jdbc:log4jdbc:oracle:thin:@localhost:1521:xe" />
+	 	<property name="username" value="spring2" />
+	 	<property name="password" value="java" />
+	 </bean>
+	 
+	 <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+	 	<property name="dataSource" ref="dataSource" />
+	 	<property name="mapperLocations" value="classpath:/mapper/**/*.xml" />
+	 	<property name="configLocation" value="/WEB-INF/config/mybatisConfig.xml" />
+	 </bean>
+	 
+	 <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+	 	<constructor-arg name="sqlSessionFactory" index="0" ref="sqlSessionFactory"/>
+	 </bean>
+	 
+	 <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+	 	<property name="basePackage" value="com.file.storage.mapper" />
+	 </bean>
+	 
+	 <!-- MultipartFile CommonsMultipartResolver 설정 시 -->
+	 <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+	 	<!-- 하나의 요청당 파일 업로드 용량 -->
+	 	<property name="maxUploadSize" value="3145728" />
+	 	<!-- 메모리에 저장되는 최대 용량 -->
+	 	<property name="maxInMemorySize" value="3145728" />
+	 	<!-- 인코딩 설정 -->
+	 	<property name="defaultEncoding" value="UTF-8" />
+	 </bean>
+	 
+	 <bean id="path" class="java.lang.String">
+	 	<constructor-arg value="E:\D_setting\A_TeachingMaterial\01_JSP_SPRING\02.SPRING2\workspace_spring2\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\FileStorageProject\resources\upload" />
+	 </bean>
+	 
+</beans>
+
+
+
+
+
+
+
+
+
+
+
