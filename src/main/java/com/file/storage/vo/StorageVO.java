@@ -1,20 +1,20 @@
 package com.file.storage.vo;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import lombok.Data;
 
 @Data
 public class StorageVO {
-	private static int sequence = 1;
 	private int fileNo;
 	private String fileName;
 	private String fileType;
 	private long fileSize;
-	private String fileFancySize;
+	private String fileFancysize;
 	private String fileContent;
 	private String filePath;
+	private String fileDate;
 	
+	private MultipartFile file;
 	
-	public StorageVO() {
-		this.fileNo = sequence++;
-	}
 }

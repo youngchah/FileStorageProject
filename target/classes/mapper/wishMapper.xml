@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.file.storage.mapper.IWishMapper">
+	
+	<resultMap type="wish" id="wishMap">
+		<id property="wishNo" column="wish_no"/>
+		<result property="userNo" column="user_no"/>
+		<result property="fileNo" column="file_no"/>
+		<result property="wishDate" column="wish_date"/>
+		<association property="storage" resultMap="storageMap"/>
+	</resultMap>
+	
+	
+	<select id="getLikeListThree" parameterType="int" resultMap="wishMap">
+		select ROWNUM, a.*
+		from(
+			select
+			    wish_no, wish_date,
+			    s.file_no, s.file_name, s.file_type, s.file_content,
+			    s.file_path, s.file_fancysize
+			from t_wishlist w
+			LEFT JOIN t_user u on (w.user_no=u.user_no)
+			LEFT JOIN t_storage s on (w.file_no=s.file_no)
+			where w.user_no = #{userNo}
+			order by wish_date desc
+		) a
+		<![CDATA[
+		where ROWNUM <= 3
+		]]>
+	</select>
+
+
+
+</mapper>

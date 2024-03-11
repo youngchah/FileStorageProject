@@ -7,6 +7,8 @@
 	</settings>
 	
 	<typeAliases>
-		<typeAlias type="com.file.storage.vo.StorageFileVO" alias="storageFileVO"/>
+		<typeAlias type="com.file.storage.vo.StorageVO" alias="storage"/>
+		<typeAlias type="com.file.storage.vo.UserVO" alias="user"/>
+		<typeAlias type="com.file.storage.vo.WishVO" alias="wish"/>
 	</typeAliases>  
 </configuration>

@@ -13,6 +13,7 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.http.HttpStatus;
@@ -27,8 +28,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.file.storage.ServiceResult;
 import com.file.storage.service.IStorageService;
-import com.file.storage.vo.StorageFileVO;
+import com.file.storage.service.IWishService;
 import com.file.storage.vo.StorageVO;
+import com.file.storage.vo.UserVO;
+import com.file.storage.vo.WishVO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,134 +40,56 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class StorageController {
 	
-	@Resource(name = "path")
-	private String path;
 	
 	@Inject
-	private IStorageService storageService;
+	private IStorageService service;
+	
+	@Inject
+	private IWishService wishService;
 	
 	@GetMapping("/main.do")
-	public String main(Model model) throws Exception {
-		File file = new File(path);
-		String downloadPath = "/resources/upload/";
-		
-		File[] files = file.listFiles();
-		List<StorageVO> storageList = new ArrayList<>();
-		for (File f : files) {
-			String filePath = path + f.getName();
-			Path p = Paths.get(filePath);
-			String mimeType = Files.probeContentType(p);
-			
-			System.out.println("NAME : " + f.getName());
-			System.out.println("SIZE : " + f.length());
-			System.out.println("TYPE : " + mimeType);
-			StorageVO vo = new StorageVO();
-			vo.setFilePath(downloadPath + f.getName());
-			vo.setFileName(f.getName().split("_")[1]);
-			vo.setFileSize(f.length());
-			vo.setFileFancySize(FileUtils.byteCountToDisplaySize(f.length()));
-			vo.setFileType(mimeType);
-			
-			storageList.add(vo);
+	public String main(HttpSession session, Model model) {
+		List<StorageVO> storageList = service.getStorageFileList("all");
+		UserVO loginUser = session.getAttribute("LOGIN_USER") == 
+				null ? null : (UserVO) session.getAttribute("LOGIN_USER");
+		if(loginUser != null) {
+			List<WishVO> wishList = wishService.getLikeListThree(loginUser.getUserNo());
+			model.addAttribute("wishList", wishList);
 		}
-		
 		model.addAttribute("storageList", storageList);
 		
-		return "filestorage";
+		return "storage/storage";
+	
 	}
 	
 	@GetMapping("/uploadForm.do")
 	public String uploadForm() {
-		return "uploadform";
+		return "storage/upload";
 	}
 	
-//	@PostMapping("/uploadForm.do")
-//	public String upload(MultipartFile formFile, String fileContent) {
-//		
-//		log.info("name : " + formFile.getOriginalFilename());
-//		log.info("size : " + formFile.getSize());
-//		log.info("type : " + formFile.getContentType());
-//		log.info("content : " + fileContent);
-//		
-//		log.info("path : " + path);
-//		
-//		if(formFile != null && formFile.getOriginalFilename() != null && !formFile.getOriginalFilename().equals("")) {
-//			String fileName = UUID.randomUUID().toString() + "_";
-//			fileName += formFile.getOriginalFilename();
-//			
-//			File file = new File(path);
-//			
-//			if(!file.exists()) {
-//				file.mkdirs();
-//			}
-//			
-//			String uploadPath = path + "/" + fileName;
-//			try {
-//					
-//				formFile.transferTo(new File(uploadPath));
-//				
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
-//		}
-//		
-//		return "redirect:main.do";
-//	}
 	
-	@PostMapping("/uploadForm.do")
-	public String upload(
-			MultipartFile formFile,
-			StorageFileVO fileVO, Model model) {
+	public String upload(HttpServletRequest req, StorageVO storage, Model model) {
 		
-		log.info("name : " + fileVO.getFileName());
-		log.info("size : " + fileVO.getFileSize());
-		log.info("type : " + fileVO.getFileType());
-		log.info("content : " + fileVO.getFileContent());
+		String goPage = "redirect:main.do";
+		boolean result = false;
 		
-		log.info("path : " + path);
+		if(storage.getFileNo() == 0) 
+			result = service.insertFile(req, storage);
+		else
+			result = service.updateFile(req, storage);
 		
-		if(formFile != null && formFile.getOriginalFilename() != null && !formFile.getOriginalFilename().equals("")) {
-			String fileName = UUID.randomUUID().toString() + "_";
-			fileName += formFile.getOriginalFilename();
-			
-			File file = new File(path);
-			
-			if(!file.exists()) {
-				file.mkdirs();
-			}
-			
-			String uploadPath = path + "/" + fileName;
-			try {
-					
-				formFile.transferTo(new File(uploadPath));
-				
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+		if(!result) {
+			goPage = "uploadForm";
+			model.addAttribute("message", "서버 에러 입니다. 파일을 다시 업로드 해주세요.");
+			model.addAttribute("storage", storage);
 		}
-		
-		
-		storageService.insertFile(fileVO);
-		model.addAttribute("fileVO", fileVO)
-;		
-		
-		return "redirect:main.do";
-		
+		return goPage;
 	}
 	
 	
-	// type별 정렬
-	@PostMapping("/changeImage.do")
-	public ResponseEntity<List<String>> imageChange(
-			@RequestBody StorageVO vo
-			){
-		List<String> typeImageList = new ArrayList<String>();
-		List<StorageVO> storageList;
 	
 	
-		return new ResponseEntity<List<String>>(typeImageList,HttpStatus.OK);
-		
-	}
+
 	
 	
 }

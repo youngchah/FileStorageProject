@@ -2,6 +2,52 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.file.storage.mapper.IStorageMapper">
 	
+	<select id="getStorageFileList" resultType="storage">
+		select 
+			file_no, file_name, file_type, file_size,
+			file_fancysize, file_content, file_path, TO_CHAR(file_date,'yyyy-MM-dd HH24:MI') as file_date
+		from t_storage
+		where 1=1
+		<if test="type != null and type != 'all'">
+			<include refid="findType" />
+		</if>
+		order by file_date desc
+	
+	</select>
+	
+	<insert id="insertFile" parameterType="storage">
+		insert into t_storage(
+			file_no, file_name, file_type, file_size,
+			file_fancysize, file_content, file_path, file_date
+		)values(
+			seq_t_storage.nextval, #{fileName}, #{fileType}, #{fileSize},
+			#{fileFancysize}, #{fileContent}, #{filePath}, sysdate
+		)
+	</insert>
+	
+	
+	<sql id="findType">
+		<choose>
+			<when test="type != null and type == 'image'">
+				and file_type LIKE '%'|| #{type} ||'%'
+			</when>
+			<when test="type != null and type == 'pdf'">
+				and file_name LIKE '%' || #{type}
+			</when>
+			<when test="type != null and type == 'doc'">
+				and substr(file_name, instr(file_name, '.')-1) LIKE '%' || #{type} || '%'
+			</when>
+			<when test="type != null and type == 'zip'">
+				and substr(file_name, instr(file_name, '.')-1) LIKE '%' || #{type}
+			</when>
+			<when test="type != null and type == 'etc'">
+				and file_type NOT LIKE '%' || 'image' || '%'
+				and file_name NOT LIKE '%' || 'pdf'
+				and substr(file_name, instr(file_name, '.')-1) NOT LIKE '%' || 'doc' || '%'
+				and substr(file_name, instr(file_name, '.')-1) NOT LIKE '%' || 'zip'
+			</when>
+		</choose>
+	</sql>
 	
 
 

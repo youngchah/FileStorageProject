@@ -1,10 +1,15 @@
 package com.file.storage.mapper;
 
-import com.file.storage.vo.StorageFileVO;
+import java.util.List;
+
+import com.file.storage.vo.StorageVO;
 
 public interface IStorageMapper {
 
-	public int insertFile(StorageFileVO fileVO);
+	List<StorageVO> getStorageFileList(String type);
+
+	int insertFile(StorageVO storage);
+
 
 
 }
