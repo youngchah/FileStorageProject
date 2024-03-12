@@ -25,6 +25,45 @@
 		)
 	</insert>
 	
+	<select id="selectStorageFile" parameterType="int" resultType="storage">
+		select
+			file_no, file_name, file_type, file_size,
+			file_fancysize, file_content, file_path, 
+			TO_CHAR(file_date,'yyyy-MM-dd HH24:MI') as file_date
+		from t_storage
+		where file_no =#{fileNo}
+	
+	</select>
+	
+	<update id="updateFile" parameterType="storage">
+		update t_storage
+		set
+			file_name = #{fileName}, 
+			file_type = #{fileType}, 
+			file_size = #{fileSize}, 
+			file_fancysize = #{fileFancysize}, 
+			file_content = #{fileContent}, 
+			file_path = #{filePath}, 
+			file_date = sysdate
+		where file_no = #{fileNo}
+	</update>
+	
+	<delete id="removeFile" parameterType="int">
+		delete from t_storage
+		where file_no = #{fileNo}
+	</delete>
+	
+	<select id="searchFile" parameterType="string" resultType="storage">
+		select
+			file_no, file_name, file_type, file_size,
+			file_fancysize, file_content, file_path, TO_CHAR(file_date,'yyyy-MM-dd HH24:MI') as file_date
+		from t_storage
+		where file_name LIKE '%' || #{searchText} || '%'
+		<if test="type != null and type != all">
+			<include refid="findType"/>
+		</if>
+		order by file_date desc
+	</select>
 	
 	<sql id="findType">
 		<choose>

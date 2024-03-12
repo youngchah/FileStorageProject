@@ -36,7 +36,7 @@
 	 </bean>
 	 
 	 <bean id="path" class="java.lang.String">
-	 	<constructor-arg value="E:\D_setting\A_TeachingMaterial\01_JSP_SPRING\02.SPRING2\workspace_spring2\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\FileStorageProject\resources\upload" />
+	 	<constructor-arg value="\resources\upload\" />
 	 </bean>
 	 
 </beans>
